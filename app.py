@@ -125,4 +125,4 @@ def assembly():
 if __name__ == '__main__':
     if not os.path.exists('static/plots'):
         os.makedirs('static/plots')
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
