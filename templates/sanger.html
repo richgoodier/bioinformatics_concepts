@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+    <h2>Sanger Sequencing</h2>
+    <p>
+        Sanger sequencing uses chain-terminating nucleotides (ddNTPs) to generate DNA fragments of varying lengths. The ratio of ddNTPs to dNTPs affects how often synthesis stops, influencing the distribution of fragment sizes.
+    </p>
+    <p>
+        This simulation models Sanger sequencing for a DNA sequence of length <strong>100</strong>, allowing users to experiment with different ddNTP/dNTP ratios and observe their effects on fragment lengths.
+    </p>
+
+    <form action="/sanger" method="post" style="display: flex; flex-direction: column; gap: 15px; max-width: 500px;">
+        <label for="dd_ratio">ddNTP/dNTP Ratio (0.001 - 1.0):</label>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="range" id="dd_ratio_slider" style="width: 400px;" min="-3" max="0" step="0.01"
+                value="{{ log_dd_ratio if log_dd_ratio else -1 }}"
+                oninput="updateDdRatio(this.value)">
+            <input type="number" id="dd_ratio" name="dd_ratio" min="0.001" max="1.0" step="0.001"
+                value="{{ dd_ratio if dd_ratio else 0.1 }}" oninput="updateDdSlider(this.value)">
+        </div>
+
+        <label for="num_reactions">Number of Rounds (100 - 10,000):</label>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="range" id="num_reactions_slider" style="width: 400px;" min="2" max="4" step="0.01"
+                value="{{ log_num_reactions if log_num_reactions else 3 }}"
+                oninput="updateNumReactions(this.value)">
+            <input type="number" id="num_reactions" name="num_reactions" min="100" max="10000" step="1"
+                value="{{ num_reactions if num_reactions else 1000 }}" oninput="updateNumReactionsSlider(this.value)">
+        </div>
+
+        <button type="submit">Run Experiment</button>
+    </form>
+
+    {% if plot_png and gel_png %}
+    <img src="{{ url_for('plot_png', filename=plot_png) }}" alt="Histogram of Fragment Lengths">
+    <img src="{{ url_for('static', filename='plots/' + gel_png) }}" alt="Gel Electrophoresis Simulation">
+    <h4>Mean Fragment Length: {{ mean_length }}</h4>
+    <h4>Standard Deviation: {{ std_dev }}</h4>
+    {% endif %}
+
+
+    <script>
+        function updateDdRatio(value) {
+            let linearValue = Math.pow(10, value);
+            document.getElementById("dd_ratio").value = linearValue.toFixed(3);
+        }
+    
+        function updateDdSlider(value) {
+            let logValue = Math.log10(value);
+            document.getElementById("dd_ratio_slider").value = logValue.toFixed(2);
+        }
+    
+        function updateNumReactions(value) {
+            let linearValue = Math.pow(10, value);
+            document.getElementById("num_reactions").value = Math.round(linearValue);
+        }
+    
+        function updateNumReactionsSlider(value) {
+            let logValue = Math.log10(value);
+            document.getElementById("num_reactions_slider").value = logValue.toFixed(2);
+        }
+    
+        // Ensure sliders update on page load
+        window.onload = function() {
+            updateDdSlider(document.getElementById("dd_ratio").value);
+            updateNumReactionsSlider(document.getElementById("num_reactions").value);
+        };
+    </script>
+    
+
+{% endblock %}

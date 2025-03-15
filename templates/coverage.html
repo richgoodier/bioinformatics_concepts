@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+    <h2>Coverage</h2>
+    <p>
+        Coverage in sequencing refers to the number of times a nucleotide position in the reference genome is read during sequencing. Higher coverage increases confidence in base calls and reduces sequencing errors, while lower coverage may result in gaps or uncertain regions. This tool allows users to visualize coverage by selecting read length and the number of reads to see how sequencing depth affects alignment.
+    </p>
+    <p>
+        Coverage is calculated using the formula:
+        <br>
+        \[
+        \text{Coverage} = \frac{L \times N}{G}
+        \]
+        where:
+        <ul>
+            <li>\( L \) = Read length</li>
+            <li>\( N \) = Number of reads</li>
+            <li>\( G \) = Reference genome length</li>
+        </ul>
+        In this simulation, the reference genome length (G) will be fixed to <strong>1000</strong> and indexed with a kmer length of 3.
+    </p>
+    
+    <form action="/coverage" method="post" style="display: flex; align-items: center; gap: 10px;">
+        <label for="read_length">Read length (5-50):</label>
+        <input type="number" id="read_length" name="read_length" min="5" max="50" required value="{{ read_length if read_length else 5 }}">
+        
+        <label for="num_reads">Number of reads (1-500):</label>
+        <input type="number" id="num_reads" name="num_reads" min="1" max="500" required value="{{ num_reads if num_reads else 10 }}">
+        
+        <button type="submit">Run Alignment</button>
+    </form>
+    
+    {% if plot_png %}
+    <img src="{{ url_for('plot_png', filename=plot_png) }}" alt="Plot">
+    <h4>Coverage: {{ coverage }}</h4>
+    <h4>Unread bases: {{ unread_bases }}</h4>
+    <p><strong>Reference Genome and Scaffold (unread bases = N):</strong></p>
+    <div class="scrollable-sequence">
+        {{- colored_reference_genome | safe -}}<br>
+        {{- colored_scaffold | safe -}}
+    </div>
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,7 @@
+flask
+matplotlib
+numpy
+scipy
+jinja2
+bootstrap-flask
+
