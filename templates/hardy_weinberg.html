@@ -1,5 +1,112 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    <h1>Coming soon...</h1>
+    <h1>Hardy-Weinberg Equilibrium</h1>
+    
+    <p>
+        The Hardy-Weinberg Equilibrium is a fundamental principle in population genetics that describes 
+        how allele and genotype frequencies remain constant from generation to generation in an idealized 
+        population. This equilibrium holds under specific conditions: no mutation, random mating, no gene 
+        flow, infinite population size, and no selection. The Hardy-Weinberg equation:
+    </p>
+
+    \[
+        p^2 + 2pq + q^2 = 1
+    \]
+
+    <p>
+        expresses the expected genotype frequencies in a population, where \( p \) and \( q \) are the 
+        allele frequencies of a given gene.
+    </p>
+
+    <p>
+        This simulation allows users to explore how the Hardy-Weinberg equilibrium works by choosing 
+        different values for allele frequencies \( p \) and \( q \) (where \( p + q = 1 \)). The simulation 
+        then generates a population of <strong>1000</strong> based on these allele ratios and compares the observed genotype 
+        frequencies to the theoretical Hardy-Weinberg expectations. By running multiple trials, users can 
+        visualize how genotype distributions align with mathematical predictions, reinforcing the principle 
+        that allele frequencies remain stable under equilibrium conditions.
+    </p>
+
+    <h4>Coming soon...</h4>
+
+    <form action="/hardyweinberg" method="post" style="display: flex; flex-direction: column; gap: 15px; max-width: 500px;">
+        
+        <label for="p_value">Allele Frequency \( p \) (0.0 - 1.0):</label>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="range" id="p_slider" style="width: 400px;" min="0" max="1" step="0.01" 
+                value="{{ p_value if p_value else 0.5 }}" oninput="updateP(this.value)">
+            <input type="number" id="p_value" name="p_value" min="0" max="1" step="0.01"
+                value="{{ p_value if p_value else 0.5 }}" oninput="updatePSlider(this.value)">
+        </div>
+
+        <label for="q_value">Allele Frequency \( q \) (Automatically Calculated: \( q = 1 - p \)): 
+            <span id="q_display">{{ 1 - p_value if p_value else 0.5 }}</span>
+        </label>
+        
+        <button type="submit">Run Simulation</button>
+    </form>
+
+    {% if population_emoji %}
+        <p>\( p^2 \): 🐦  \( 2pq \): 🦚  \( q^2 \): 🐤</p>
+        <h4>Population:</h4>
+        <p> {{ population_emoji }} </p>
+
+        <h4>Population Data:</h4>
+        <table border="1" style="border-collapse: collapse; text-align: center; width: 50%;">
+            <tr>
+                <th>Genotype</th>
+                <th>Observed</th>
+                <th>Theoretical</th>
+            </tr>
+            <tr>
+                <td>Homozygous \( p \) ( \( p^2 \) ) 🐦</td>
+                <td>{{ observed[0] }}</td>
+                <td>{{ theoretical[0] }}</td>
+            </tr>
+            <tr>
+                <td>Heterozygous ( \( 2pq \) ) 🦚</td>
+                <td>{{ observed[1] }}</td>
+                <td>{{ theoretical[1] }}</td>
+            </tr>
+            <tr>
+                <td>Homozygous \( q \) ( \( q^2 \) ) 🐤</td>
+                <td>{{ observed[2] }}</td>
+                <td>{{ theoretical[2] }}</td>
+            </tr>
+        </table>
+
+        <h4>Questions:</h4>
+        <ul>
+            <li>Why are the observed and theoretical numbers not identical?  
+                <br><small>(Hint: Consider the effects of random sampling and population size.)</small>
+            </li>
+            <li>What would happen if the population size increased to 10,000 or more?  
+                <br><small>(Would the observed values get closer to the theoretical ones? Why?)</small>
+            </li>
+            <li>If a real population deviates significantly from Hardy-Weinberg equilibrium, what could that indicate?  
+                <br><small>(What forces might be acting on the population?)</small>
+            </li>
+        </ul>    
+    {% endif %}
+
+    <script>
+        function updateP(value) {
+            document.getElementById("p_value").value = parseFloat(value).toFixed(2);
+            document.getElementById("q_display").textContent = (1 - parseFloat(value)).toFixed(2);
+        }
+        
+        function updatePSlider(value) {
+            let p = parseFloat(value);
+            if (p >= 0 && p <= 1) {
+                document.getElementById("p_slider").value = p.toFixed(2);
+                document.getElementById("q_display").textContent = (1 - p).toFixed(2);
+            }
+        }
+        
+        // Ensure values are synced on page load
+        window.onload = function() {
+            updateP(document.getElementById("p_slider").value);
+        };
+    </script>
 {% endblock %}

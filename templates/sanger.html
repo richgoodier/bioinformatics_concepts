@@ -4,10 +4,15 @@
 
     <h2>Sanger Sequencing</h2>
     <p>
-        Sanger sequencing uses chain-terminating nucleotides (ddNTPs) to generate DNA fragments of varying lengths. The ratio of ddNTPs to dNTPs affects how often synthesis stops, influencing the distribution of fragment sizes.
+        Sanger sequencing uses chain-terminating nucleotides (ddNTPs) to generate DNA fragments of varying 
+        lengths. The ratio of ddNTPs to dNTPs affects how often synthesis stops, influencing the 
+        distribution of fragment sizes.
     </p>
     <p>
-        This simulation models Sanger sequencing for a DNA sequence of length <strong>100</strong>, allowing users to experiment with different ddNTP/dNTP ratios and observe their effects on fragment lengths.
+        This simulation models Sanger sequencing for a DNA sequence of length <strong>100</strong>, 
+        allowing users to experiment with different ddNTP/dNTP ratios and observe their effects on fragment 
+        lengths. (Currently the simulation uses a theoretical N base.  In the future, we will break up 
+        the simulation into four separate bases.)
     </p>
 
     <form action="/sanger" method="post" style="display: flex; flex-direction: column; gap: 15px; max-width: 500px;">
@@ -16,7 +21,7 @@
             <input type="range" id="dd_ratio_slider" style="width: 400px;" min="-3" max="0" step="0.01"
                 value="{{ log_dd_ratio if log_dd_ratio else -1 }}"
                 oninput="updateDdRatio(this.value)">
-            <input type="number" id="dd_ratio" name="dd_ratio" min="0.001" max="1.0" step="0.001"
+            <input type="number" id="dd_ratio" name="dd_ratio" min="0.0001" max="1.0" step="0.001"
                 value="{{ dd_ratio if dd_ratio else 0.1 }}" oninput="updateDdSlider(this.value)">
         </div>
 
@@ -29,7 +34,8 @@
                 value="{{ num_reactions if num_reactions else 1000 }}" oninput="updateNumReactionsSlider(this.value)">
         </div>
 
-        <button type="submit">Run Experiment</button>
+        <button type="submit" onclick="startLoading(this); this.form.submit();">Synthesize Strands</button>
+        <span id="loadingText" style="display: none; font-weight: bold; color: red;">Synthesizing<span id="dots"></span></span>
     </form>
 
     {% if plot_png and gel_png %}
@@ -66,6 +72,22 @@
             updateDdSlider(document.getElementById("dd_ratio").value);
             updateNumReactionsSlider(document.getElementById("num_reactions").value);
         };
+
+        function startLoading(button) {
+            // Disable button to prevent multiple clicks
+            button.disabled = true;
+    
+            // Show the "Aligning reads..." message
+            document.getElementById("loadingText").style.display = "inline";
+    
+            // Start flashing dots animation
+            let dots = document.getElementById("dots");
+            let count = 0;
+            setInterval(() => {
+                count = (count + 1) % 4;  // Cycle through 0 to 3 dots
+                dots.innerHTML = ".".repeat(count);
+            }, 500);
+        }
     </script>
     
 

@@ -1,13 +1,14 @@
 import matplotlib
 matplotlib.use('Agg')
 from flask import Flask, request, render_template, redirect, url_for, send_from_directory
-import pandas as pd
 import numpy as np
 from initialization import create_reference_genome, index_reference_genome
+from hardy_weinberg import *
 from sanger import *
 from coverage import *
 from visualizations import *
 import os
+import time
 
 app = Flask(__name__)
 
@@ -24,7 +25,24 @@ def index():
 
 @app.route('/hardyweinberg', methods=["GET", "POST"])
 def hardy_weinberg():
-    return render_template('hardy_weinberg.html')
+    pop_size = 1000
+    
+    if request.method == "POST":
+        p = float(request.form.get('p_value'))
+        
+        theoretical = calculate_theoretical_genotypes(p)
+        population_emoji, observed = calculate_observed_genotypes(p, pop_size)
+        
+        return render_template(
+            'hardy_weinberg.html',
+            p_value=p,
+            population_emoji=population_emoji,
+            theoretical=theoretical,
+            observed=observed)
+    
+    else:
+        return render_template('hardy_weinberg.html')
+        
 
 @app.route('/sanger', methods=["GET", "POST"])
 def sanger():
@@ -33,7 +51,6 @@ def sanger():
     if request.method == "POST":
         dd_ratio = float(request.form.get('dd_ratio', 0.1))
         num_reactions = int(request.form.get('num_reactions', 1000))
-        print(dd_ratio, num_reactions)
         
         # Simulate Sanger
         fragment_counts, termination_sites = simulate_sanger(seq_len, dd_ratio, num_reactions)
