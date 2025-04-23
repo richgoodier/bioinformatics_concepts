@@ -7,17 +7,12 @@ from hardy_weinberg import *
 from sanger import *
 from coverage import *
 from visualizations import *
+from phasing import *
+from ChIP_seq import *
 import os
 import time
 
 app = Flask(__name__)
-
-# initialize reference_genome and index
-reference_length = 1000
-kmer_length = 3
-reference_genome = create_reference_genome(reference_length)
-reference_index = index_reference_genome(reference_genome, kmer_length)
-
 
 @app.route('/', methods=["GET", "POST"])
 def index():
@@ -85,16 +80,23 @@ def sanger():
 
 @app.route('/coverage', methods=["GET", "POST"])
 def coverage():
+    # initialize reference_genome and index
+    reference_length = 1000
+    kmer_length = 3
+    reference_genome = create_reference_genome(reference_length)
+    reference_index = index_reference_genome(reference_genome, kmer_length)
+    
     # Default values
     read_length = 10
     num_reads = 100
-    
+        
     if request.method == "POST":
         read_length = int(request.form.get('read_length', 5))
         num_reads = int(request.form.get('num_reads', 10))
         
         # Create Reads
         reads = create_reads(reference_genome, read_length, num_reads)
+        print(reads.shape)
         
         # Align Reads
         read_starts = align_reads(reference_genome, reference_index, kmer_length, reads)
@@ -134,9 +136,85 @@ def coverage():
 def plot_png(filename):
     return send_from_directory('static/plots', filename)
 
-@app.route('/mutations', methods=["GET", "POST"])
-def assembly():
-    return render_template('mutations.html')
+@app.route("/phasing", methods=["GET", "POST"])
+def phasing():
+    sequence_len = 200
+    num_reads = 100
+    
+    if request.method == "POST":
+        error_rate = float(request.form.get("error_rate", 0.1))
+        
+
+        # Generate actual sequence
+        sequence = generate_sequence(sequence_len)
+        
+        # Calculate reads and read_values
+        reads = np.array([simulate_one_read(sequence, error_rate=error_rate) for _ in range(num_reads)])
+        read_values = calculate_read_values(reads)
+        
+        # Generate Consensus Sequence
+        consensus_sequence = generate_consensus_sequence(read_values)
+        
+        # Record Misreads
+        accumulated_misreads, first_misread_index = record_misreads(sequence, consensus_sequence)
+
+        # Plot and Save Illumina Read
+        fig = plot_Illumina_read(sequence, read_values, consensus_sequence, accumulated_misreads, error_rate)
+        plot_png = save_plot_to_png(fig, "phasing_plot")
+
+        return render_template(
+            "phasing.html",
+            error_rate=error_rate,
+            plot_png=plot_png,
+            actual_sequence="".join(sequence),
+            read_sequence="".join(consensus_sequence),
+            first_misread_index=first_misread_index
+        )
+
+    return render_template("phasing.html", error_rate=0.1)
+
+
+@app.route('/chipseq', methods=["GET", "POST"])
+def chipseq():
+    genome_length = 500
+    binding_site_length = 10
+    num_reads = 100
+    
+    if request.method == "POST":
+        specificity = int(request.form.get("specificity", 4))
+        ideal_locations, good_locations = generate_non_overlapping_sites(
+            genome_length, binding_site_length, count=4
+        )
+
+        # Simulate genome and reads
+        reference_genome, ideal_site = create_reference_genome_chip(
+            genome_length=genome_length,
+            binding_site_length=binding_site_length,
+            ideal_site_locations=ideal_locations,
+            good_site_locations=good_locations,
+        )
+
+        read_map = create_reads_chip(
+            reference_genome=reference_genome,
+            binding_site=ideal_site,
+            binding_site_length=binding_site_length,
+            antibody_specificity=specificity,
+        )
+
+        plot_object = plot_read_map(read_map)
+        plot_png = save_plot_to_png(plot_object, "chipseq_plot")
+
+        return render_template(
+            "chip-seq.html",
+            specificity=specificity,
+            plot_png=plot_png,
+            ideal_locations=ideal_locations,
+            good_locations=good_locations
+        )
+
+    else:
+        return render_template("chip-seq.html", specificity=2)
+
 
 
 if __name__ == '__main__':

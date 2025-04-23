@@ -109,6 +109,20 @@ tbody tr:nth-of-type(odd) {
     padding: 5px;
 }
 
+.hidden-answers {
+    background-color: black;
+    color: black;
+    padding: 10px;
+    border-radius: 8px;
+    transition: color 0.5s ease-in-out;
+    cursor: pointer;
+}
+
+.hidden-answers:hover {
+    color: white;
+}
+
+
 footer {
     display: flex;
     justify-content: center;

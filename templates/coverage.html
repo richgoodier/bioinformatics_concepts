@@ -18,7 +18,7 @@
             <li>\( N \) = Number of reads</li>
             <li>\( G \) = Reference genome length</li>
         </ul>
-        In this simulation, the reference genome length (G) will be fixed to <strong>1000</strong> and indexed with a kmer length of 3.
+        In this simulation, the reference genome length (G) will be fixed to <strong>1000</strong> and indexed with a kmer length of <strong>3</strong>.
     </p>
     
     <form action="/coverage" method="post" style="display: flex; align-items: center; gap: 10px;">
@@ -36,6 +36,19 @@
     <img src="{{ url_for('plot_png', filename=plot_png) }}" alt="Plot">
     <h4>Coverage: {{ coverage }}</h4>
     <h4>Unread bases: {{ unread_bases }}</h4>
+    <h4>Questions:</h4>
+    <ul>
+        <li>How does increasing the number of reads impact coverage?
+            <br><small>(What effect does this have on gaps in the reference scaffold?)</small>
+        </li>
+        <li>Why are some bases still unread even with many reads?
+            <br><small>(Consider the randomness of start positions and short read lengths.)</small>
+        </li>
+        <li>How would changing the read length influence the scaffold reconstruction?
+            <br><small>(Would longer reads improve the accuracy of alignment?)</small>
+        </li>
+    </ul>
+    
     <p><strong>Reference Genome and Scaffold (unread bases = N):</strong></p>
     <div class="scrollable-sequence">
         {{- colored_reference_genome | safe -}}<br>

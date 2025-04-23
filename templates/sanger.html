@@ -43,6 +43,19 @@
     <img src="{{ url_for('static', filename='plots/' + gel_png) }}" alt="Gel Electrophoresis Simulation">
     <h4>Mean Fragment Length: {{ mean_length }}</h4>
     <h4>Standard Deviation: {{ std_dev }}</h4>
+    <h4>Questions:</h4>
+    <ul>
+        <li>Why do shorter fragments appear more frequently in the simulation?
+            <br><small>(Hint: Consider the probability of chain termination at each cycle.)</small>
+        </li>
+        <li>How does changing the ddNTP/dNTP ratio affect the distribution of fragment lengths?
+            <br><small>(What would happen if the ratio is very high or very low?)</small>
+        </li>
+        <li>How does the simulated gel electrophoresis correspond to actual lab results?
+            <br><small>(What assumptions are made in the model?)</small>
+        </li>
+    </ul>
+    
     {% endif %}
 
 

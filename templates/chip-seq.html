@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<h2>ChIP-seq and Peak Calling</h2>
+
+<p>
+    ChIP-seq (Chromatin Immunoprecipitation Sequencing) is a method for identifying DNA regions bound by specific proteins, such as transcription factors.
+    Antibodies are used to isolate protein-bound DNA fragments, which are then sequenced.
+    The result is a genome-wide "peak map" that shows where proteins were most likely bound.
+</p>
+
+<p>
+    In this simulation, we use a synthetic genome of length <strong>500</strong> bases.
+    <strong>100</strong> reads are generated based on how closely regions of the genome match a target binding site.
+    You can adjust <strong>antibody specificity</strong> to simulate better or worse binding precision.
+</p>
+
+<form action="/chipseq" method="post" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+    <label for="specificity">Antibody Specificity:</label>
+    <select id="specificity" name="specificity" required>
+        <option value="1" {% if specificity == 1 %}selected{% endif %}>Poor</option>
+        <option value="2" {% if specificity == 2 %}selected{% endif %}>Good</option>
+        <option value="3" {% if specificity == 3 %}selected{% endif %}>Better</option>
+        <option value="4" {% if specificity == 4 %}selected{% endif %}>Best</option>
+    </select>
+
+    <button type="submit">Sequence</button>
+</form>
+
+{% if plot_png %}
+    <hr>
+    <h4>Aligned Reads</h4>
+    <p>This bar plot shows where reads aligned in the genome, including some experimental noise (jitter).</p>
+    <img src="{{ url_for('plot_png', filename=plot_png) }}" alt="ChIP-seq Read Alignment">
+
+    <div style="margin-top: 20px;">
+        <p><strong>Can you guess where the binding sites are?</strong> (Hover below to reveal answer)</p>
+        <div class="hidden-answers">
+            <p><strong>Ideal Binding Sites:</strong> {{ ideal_locations }}</p>
+            <p><strong>Good Binding Sites:</strong> {{ good_locations }}</p>
+        </div>
+    </div>
+
+    <h4>Questions:</h4>
+    <ul>
+        <li>How did changing the antibody specificity affect the sharpness and height of the peaks?  
+            <br><small>(Hint: Consider how affinity is translated into read probability.)</small>
+        </li>
+        <li>Can you distinguish the good binding sites from the ideal ones just by looking at the peaks?  
+            <br><small>(What visual cues or assumptions might help or mislead you?)</small>
+        </li>
+        <li>In a real ChIP-seq experiment, what kinds of biological or technical noise might obscure true binding sites?  
+            <br><small>(Think about sequencing errors, non-specific binding, and read depth.)</small>
+        </li>
+    </ul>
+{% endif %}
+
+{% endblock %}
