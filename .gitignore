@@ -7,9 +7,11 @@ __pycache__/
 venv/
 env/
 
+# Ignore markdownlint files
+.markdownlint*
+
 # Ignore plot images and generated media
 static/plots/
-*.png
 
 # Ignore practice files
 *.ipynb
